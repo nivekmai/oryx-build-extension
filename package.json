@@ -1,11 +1,11 @@
 {
-  "name": "chrome-extension-boilerplate-react-vite",
-  "version": "0.3.5",
-  "description": "chrome extension boilerplate",
+  "name": "chrome-extension-oryx",
+  "version": "0.0.1",
+  "description": "Extension to add functionality to ZSA's Oryx keyboard configurator",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite.git"
+    "url": "https://github.com/nivekmai/oryx-build-extension"
   },
   "type": "module",
   "scripts": {
@@ -30,6 +30,7 @@
     "update-version": "bash update_version.sh"
   },
   "dependencies": {
+    "@octokit/request": "^9.2.0",
     "eslint-plugin-tailwindcss": "^3.17.4",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -57,12 +58,12 @@
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
+    "run-script-os": "^1.1.6",
     "tailwindcss": "^3.4.14",
     "tslib": "^2.6.3",
-    "typescript": "5.5.4",
     "turbo": "^2.3.3",
-    "vite": "6.0.5",
-    "run-script-os": "^1.1.6"
+    "typescript": "5.5.4",
+    "vite": "6.0.5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json}": [

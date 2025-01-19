@@ -5,7 +5,7 @@ import tailwindcssOutput from '../dist/tailwind-output.css?inline';
 const root = document.createElement('div');
 root.id = 'chrome-extension-boilerplate-react-vite-content-view-root';
 
-document.body.append(root);
+document.body.prepend(root);
 
 const rootIntoShadow = document.createElement('div');
 rootIntoShadow.id = 'shadow-root';

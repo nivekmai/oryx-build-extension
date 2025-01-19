@@ -1,11 +1,11 @@
 {
   "extensionDescription": {
     "description": "Extension description",
-    "message": "Chrome extension boilerplate developed with Vite, React and Typescript"
+    "message": "Extension to add functionality to ZSA's Oryx keyboard configurator"
   },
   "extensionName": {
     "description": "Extension name",
-    "message": "Chrome extension boilerplate"
+    "message": "Oryx Extension"
   },
   "toggleTheme": {
     "message": "Toggle theme"

@@ -1,1 +1,1 @@
-export * from './exampleThemeStorage';
+export * from './configStorage';
