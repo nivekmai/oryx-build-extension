@@ -18,7 +18,8 @@ const manifest = {
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
   host_permissions: ['<all_urls>'],
-  permissions: ['storage', 'scripting', 'tabs', 'notifications'],
+  permissions: ['storage', 'scripting'],
+  host_permissions: ['https://configure.zsa.io/*/layouts/*'],
   options_page: 'options/index.html',
   background: {
     service_worker: 'background.iife.js',
@@ -29,7 +30,7 @@ const manifest = {
   },
   content_scripts: [
     {
-      matches: ['https://configure.zsa.io/*'],
+      matches: ['https://configure.zsa.io/*/layouts/*'],
       js: ['content-ui/index.iife.js'],
     },
   ],
