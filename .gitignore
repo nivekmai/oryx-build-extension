@@ -21,3 +21,8 @@
 # compiled
 chrome-extension/public/manifest.json
 **/tailwind-output.css
+
+# distribution
+dist.pem
+dist.crx
+dist.zip
