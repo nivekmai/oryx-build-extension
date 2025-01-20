@@ -21,3 +21,17 @@ The extension uses the Github API and the Oryx URL to drive the Github workflow.
 ## Development
 
 Forked from [Jonghakseo/chrome-extension-boilerplate-react-vite](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite).  See the boilerplate readme for instructions.
+tl;dr:
+```
+# install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# set to .nvmrc version
+nvm use `cat .nvmrc`
+# install pnpm
+npm install -g pnpm
+# install deps
+pnpm install
+# build in dev mode
+pnpm dev
+```
+Then use chrome dev mode to "Load unpacked" and load the `dist` folder. Boilerplate has HMR so saving should trigger reloads (you'll see Oryx reload if HMR is working).
