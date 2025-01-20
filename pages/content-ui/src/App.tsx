@@ -71,6 +71,8 @@ export default function App() {
   const runAction = async () => {
     setProgress(Progress.RUNNING);
     latestWorkflowRun = new Date();
+    // Wait 1 second to compensate for any clock skew
+    await new Promise(r => setTimeout(r, 1_000));
     try {
       const result = await request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
         owner,
