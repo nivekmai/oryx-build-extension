@@ -1,9 +1,9 @@
 import '@src/Options.css';
-import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
+import { useStorage, withErrorBoundary, withSuspense, parseGithubUrl, buildGithubUrl } from '@extension/shared';
 import { configStorage } from '@extension/storage';
 import { Input } from '@extension/ui';
-import { useState, ChangeEvent } from 'react';
-import { parseGithubUrl, buildGithubUrl } from '@extension/shared';
+import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 
 const Options = () => {
   const {
@@ -29,23 +29,23 @@ const Options = () => {
   };
 
   return (
-    <div className="container content-start grid gap-6 mb-6 grid-cols-1">
-      <div className="pt-8 text-lg text-left font-medium text-white">Instructions</div>
-      <div className="pt-1 text-sm text-left text-white">
+    <div className="container mb-6 grid grid-cols-1 content-start gap-6">
+      <div className="pt-8 text-left text-lg font-medium text-white">Instructions</div>
+      <div className="pt-1 text-left text-sm text-white">
         To get the <b>Github Action URL</b> go to your repository page &gt; <b>Actions</b> &gt;{' '}
         <b>Fetch and build layout</b> and copy the URL.
       </div>
-      <div className="py-1 text-sm text-left text-white">
+      <div className="py-1 text-left text-sm text-white">
         To get the <b>Personal Access Token</b> you will need to follow the{' '}
         <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token">
           Github Documentation
         </a>
         . Make sure the token has access to read and write the <b>Actions</b> scope.
       </div>
-      <div className="py-1 text-sm text-left text-white">
+      <div className="py-1 text-left text-sm text-white">
         No need to save the page, after these values are entered here, you will see a button on Oryx to{' '}
         <b>Run Github Workflow</b>, which will trigger the workflow to run. These values are stored only in the browser,
-        they are not sync'd to any cloud storage.
+        they are not sync&apos;d to any cloud storage.
       </div>
       <hr />
       <Input

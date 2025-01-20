@@ -1,12 +1,11 @@
 export const parseOryxUrl = () => {
-  const [_all, layout_geometry, layout_id] =
+  const [, layout_geometry, layout_id] =
     window.location.href.match('https://configure.zsa.io/([^/]+)/layouts/([^/]+)') || [];
   return { layout_geometry, layout_id };
 };
 
 export const parseGithubUrl = (url: string) => {
-  const [_all, owner, repo, workflow_id] =
-    url.match('https://github.com/([^/]+)/([^/]+)/actions/workflows/([^/]+)') || [];
+  const [, owner, repo, workflow_id] = url.match('https://github.com/([^/]+)/([^/]+)/actions/workflows/([^/]+)') || [];
   return { owner, repo, workflow_id };
 };
 

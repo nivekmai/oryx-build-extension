@@ -47,9 +47,9 @@ export default function App() {
   const { layout_geometry, layout_id } = parseOryxUrl();
   const [progress, setProgress] = useState(Progress.IDLE);
   const [artifactProgress, setArtifactProgress] = useState(ArtifactProgress.IDLE);
-  const [latestWorkflow, setLatestWorkflow] = useState<any>({});
+  const [latestWorkflow, setLatestWorkflow] = useState<unknown>(null);
   const [artifact, setArtifact] = useState(0);
-  const [error, setError] = useState<any>('');
+  const [error, setError] = useState<unknown>(null);
   const optionsUrl = chrome.runtime.getURL('options/index.html');
   const configured = owner && repo && workflow_id && token;
   const visible = useVisibilityChange();
@@ -113,7 +113,7 @@ export default function App() {
     setLatestWorkflow(newLatestWorkflow);
     // No need to get artifact data if workflow hasn't changed or is in progress
     if (
-      (newLatestWorkflow.id == latestWorkflow.id && newLatestWorkflow.status == latestWorkflow.status) ||
+      (newLatestWorkflow.id == latestWorkflow?.id && newLatestWorkflow.status == latestWorkflow?.status) ||
       newLatestWorkflow.status == WorkflowStatus.IN_PROGRESS
     ) {
       return;
@@ -143,6 +143,7 @@ export default function App() {
     (async () => {
       refresh();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useInterval(async () => {
@@ -183,7 +184,7 @@ export default function App() {
           <Button onClick={runAction}>Run Github Workflow</Button>
         )
       ) : (
-        <a href={optionsUrl} target="_blank">
+        <a href={optionsUrl} target="_blank" rel="noreferrer">
           Extension unconfigured, click to open options to configure
         </a>
       )}
@@ -214,7 +215,7 @@ export default function App() {
                 case WorkflowStatus.NEUTRAL:
                   return (
                     <div>
-                      <a href={latestWorkflow.html_url} target="_blank">
+                      <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
                         Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) needs
                         attention, click to open Github.
                       </a>
@@ -235,13 +236,13 @@ export default function App() {
                             return artifact ? (
                               <Button onClick={downloadLatestArtifact}>Download</Button>
                             ) : (
-                              <a href={latestWorkflow.html_url} target="_blank">
+                              <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
                                 Artifact Missing! Click to open worflow page.
                               </a>
                             );
                           case ArtifactProgress.FAILED:
                             return (
-                              <a href={latestWorkflow.html_url} target="_blank">
+                              <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
                                 Failed to fetch artifact! Click to open worflow page.
                               </a>
                             );

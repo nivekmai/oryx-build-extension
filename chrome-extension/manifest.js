@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import deepmerge from 'deepmerge';
 
 const packageJson = JSON.parse(fs.readFileSync('../package.json', 'utf8'));
 
@@ -17,7 +16,6 @@ const manifest = {
   name: '__MSG_extensionName__',
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  host_permissions: ['<all_urls>'],
   permissions: ['storage', 'scripting'],
   host_permissions: ['https://configure.zsa.io/*/layouts/*'],
   options_page: 'options/index.html',

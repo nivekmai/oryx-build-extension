@@ -6,7 +6,7 @@ export type InputProps = {
   label: string;
 } & ComponentPropsWithoutRef<'input'>;
 
-export function Input({ className, children, id, placeholder, label, ...props }: InputProps) {
+export function Input({ className, id, placeholder, label, ...props }: InputProps) {
   return (
     <div>
       <label htmlFor={id} className={cn(className, 'block mb-2 text-sm text-left font-medium text-white')}>

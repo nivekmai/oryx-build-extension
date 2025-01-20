@@ -1,13 +1,15 @@
 import type { ClassValue } from 'clsx';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };
 
-export const useInterval = (callback: any, delay: number) => {
+type Callback = () => void;
+
+export const useInterval = (callback: Callback, delay: number) => {
   const savedCallback = useRef();
 
   useEffect(() => {
