@@ -14,6 +14,12 @@ const manifest = {
    * https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization
    */
   name: '__MSG_extensionName__',
+  browser_specific_settings: {
+    gecko: {
+      id: 'nivekmai-oryx-build-extension@github.com',
+      strict_min_version: '109.0',
+    },
+  },
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
   permissions: ['storage', 'scripting'],
