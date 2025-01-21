@@ -22,7 +22,7 @@ const manifest = {
   },
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  permissions: ['storage', 'scripting'],
+  permissions: ['storage'],
   host_permissions: ['https://configure.zsa.io/*/layouts/*'],
   options_page: 'options/index.html',
   background: {
