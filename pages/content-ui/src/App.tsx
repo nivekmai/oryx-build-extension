@@ -184,7 +184,7 @@ export default function App() {
           <Button onClick={runAction}>Run Github Workflow</Button>
         )
       ) : (
-        <a href={optionsUrl} target="_blank" rel="noreferrer">
+        <a id="options_link" href={optionsUrl} target="_blank" rel="noreferrer">
           Extension unconfigured, click to open options to configure
         </a>
       )}
