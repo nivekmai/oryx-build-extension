@@ -30,6 +30,8 @@ const manifest = {
     type: 'module',
   },
   icons: {
+    48: 'icon-48.png',
+    96: 'icon-96.png',
     128: 'icon-128.png',
   },
   content_scripts: [
