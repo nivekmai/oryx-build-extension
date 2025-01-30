@@ -20,6 +20,8 @@ No need to save the page, after these values are entered here, you will see a bu
 
 The extension uses the Github API and the Oryx URL to drive the Github workflow. When the latest workflow is complete, the API is used to create a download link.
 
+The bulk of the code is in [App.tsx](pages/content-ui/src/App.tsx), and is almost entirely just attempting to handle various states/latency from the API.
+
 ## Development
 
 Forked from [Jonghakseo/chrome-extension-boilerplate-react-vite](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite).  See the boilerplate readme for instructions.
