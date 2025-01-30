@@ -4,6 +4,8 @@ An extension to easily start runs and access artifacts for your fork of [poulain
 
 This extension adds a bar to the top of ZSA's Oryx which lets you start the "Fetch and build layout" workflow after you've updated your keymap. You can then download the firmware when the run completes. Hopefully without ever having to visit github just to kick off/download builds.
 
+![configure zsa io_moonlander_layouts_Eon7Y_latest_0](https://github.com/user-attachments/assets/b0091eea-4a53-4d58-b63b-be86825936be)
+
 ## Usage
 
 Extension is configured via the extensions options page, go to extensions > <b>Oryx Extension</b> > ⋮ > <b>Options</b>.
