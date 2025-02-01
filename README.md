@@ -16,6 +16,11 @@ To get the <b>Personal Access Token</b> you will need to follow the <a href="htt
 
 No need to save the page, after these values are entered here, you will see a button on Oryx to <b>Run Github Workflow</b>, which will trigger the workflow to run. These values are stored only in the browser, they are not sync'd to any cloud storage.
 
+> [!NOTE]
+> FOR ERGODOX-EZ AND PLANK USERS
+> 
+> Since it's not exactly straightforward to map the Oryx page to the `layout_geometry` for these boards (with the various versions available), there is an additional option to be able to override the `layout_geometry` that is used int the Github Worflow.
+
 ## How it works
 
 The extension uses the Github API and the Oryx URL to drive the Github workflow. When the latest workflow is complete, the API is used to create a download link.
