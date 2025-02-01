@@ -1,6 +1,6 @@
 {
   "name": "chrome-extension-oryx",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Extension to add functionality to ZSA's Oryx keyboard configurator",
   "license": "MIT",
   "repository": {
