@@ -43,8 +43,10 @@ const WAIT_INTERVAL = 10_000;
 let latestWorkflowRun: Date | null = null;
 
 export default function App() {
-  const { owner, repo, workflow_id, token } = useStorage(configStorage);
-  const { layout_geometry, layout_id } = parseOryxUrl();
+  const { owner, repo, workflow_id, token, layout_geometry: store_layout_geometry } = useStorage(configStorage);
+  // TODO (#1): We need to actually look at the page to figure out correct layout_geometry
+  const { layout_geometry: url_layout_geometry, layout_id } = parseOryxUrl();
+  const layout_geometry = store_layout_geometry || url_layout_geometry;
   const [progress, setProgress] = useState(Progress.IDLE);
   const [artifactProgress, setArtifactProgress] = useState(ArtifactProgress.IDLE);
   const [latestWorkflow, setLatestWorkflow] = useState<unknown>(null);

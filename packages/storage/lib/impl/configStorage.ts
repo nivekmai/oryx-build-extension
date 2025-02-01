@@ -7,6 +7,7 @@ type Config = {
   repo: string;
   workflow_id: string;
   token: string;
+  layout_geometry: string;
 };
 
 type ConfigStorage = BaseStorage<Config>;
@@ -18,6 +19,7 @@ const storage = createStorage<Config>(
     repo: '',
     workflow_id: '',
     token: '',
+    layout_geometry: '',
   },
   {
     storageEnum: StorageEnum.Local,

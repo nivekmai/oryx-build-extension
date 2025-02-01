@@ -6,26 +6,21 @@ import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
 const Options = () => {
-  const {
-    owner: store_owner,
-    repo: store_repo,
-    workflow_id: store_workflow_id,
-    token: store_token,
-  } = useStorage(configStorage);
-  const [repo_url, setRepoUrl] = useState(
-    buildGithubUrl({ owner: store_owner, repo: store_repo, workflow_id: store_workflow_id }),
-  );
-  const [token, setToken] = useState(store_token);
+  const { owner, repo, workflow_id, token, layout_geometry } = useStorage(configStorage);
+  const [repo_url, setRepoUrl] = useState(buildGithubUrl({ owner, repo, workflow_id }));
   const onRepoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const github_url = e.target.value;
     setRepoUrl(github_url);
     const { owner, repo, workflow_id } = parseGithubUrl(github_url);
-    configStorage.set({ owner, repo, workflow_id, token: store_token });
+    configStorage.set({ owner, repo, workflow_id, token, layout_geometry });
   };
   const onTokenChange = (e: ChangeEvent<HTMLInputElement>) => {
     const token = e.target.value;
-    setToken(token);
-    configStorage.set({ token, owner: store_owner, repo: store_repo, workflow_id: store_workflow_id });
+    configStorage.set({ token, owner, repo, workflow_id, layout_geometry });
+  };
+  const onLayoutGeometryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const layout_geometry = e.target.value;
+    configStorage.set({ token, owner, repo, workflow_id, layout_geometry });
   };
 
   return (
@@ -59,6 +54,19 @@ const Options = () => {
         placeholder="github_pat_dQw4w9WgXcQ"
         value={token || ''}
         onChange={onTokenChange}
+      />
+      <hr />
+      <div className="py-1 text-left text-sm text-white">
+        If your layout_geometry is not available from the Oryx URL (e.g. moonlander, voyager, plank_ez, or ergodox_ez),
+        you can use this to override the layout_geometry in the workflow.
+        <br />
+        Leave blank to use the URL.
+      </div>
+      <Input
+        label="Layout Geometry Override"
+        placeholder="ergodox_ez/stm32/glow"
+        value={layout_geometry || ''}
+        onChange={onLayoutGeometryChange}
       />
     </div>
   );
