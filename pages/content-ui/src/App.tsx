@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, useInterval, useVisibilityChange } from '@extension/ui';
-import { useStorage, parseOryxUrl } from '@extension/shared';
+import { useStorage, QmkLayout } from '@extension/shared';
 import { configStorage } from '@extension/storage';
 import { request } from '@octokit/request';
 
@@ -44,9 +44,8 @@ let latestWorkflowRun: Date | null = null;
 
 export default function App() {
   const { owner, repo, workflow_id, token, layout_geometry: store_layout_geometry } = useStorage(configStorage);
-  // TODO (#1): We need to actually look at the page to figure out correct layout_geometry
-  const { layout_geometry: url_layout_geometry, layout_id } = parseOryxUrl();
-  const layout_geometry = store_layout_geometry || url_layout_geometry;
+  const qmk_layout: QmkLayout = QmkLayout.bootstrap();
+  const layout_geometry = store_layout_geometry || qmk_layout.geometry;
   const [progress, setProgress] = useState(Progress.IDLE);
   const [artifactProgress, setArtifactProgress] = useState(ArtifactProgress.IDLE);
   const [latestWorkflow, setLatestWorkflow] = useState<unknown>(null);
@@ -59,10 +58,6 @@ export default function App() {
   const headers = {
     authorization: `token ${token}`,
   };
-  const inputs = {
-    layout_geometry,
-    layout_id,
-  };
   const ref = 'main';
 
   // threading? IDK
@@ -71,6 +66,11 @@ export default function App() {
   };
 
   const runAction = async () => {
+    store_layout_geometry || qmk_layout.update(QmkLayout.bootstrap());
+    const inputs = {
+      layout_geometry: layout_geometry ?? qmk_layout.geometry,
+      layout_id: qmk_layout.id,
+    };
     setProgress(Progress.RUNNING);
     latestWorkflowRun = new Date();
     // Wait 1 second to compensate for any clock skew
@@ -111,7 +111,7 @@ export default function App() {
     } else {
       setProgress(Progress.WAITING);
     }
-    console.log('worflow data: ', workflows.data);
+    console.log('workflow data: ', workflows.data);
     setLatestWorkflow(newLatestWorkflow);
     // No need to get artifact data if workflow hasn't changed or is in progress
     if (
@@ -170,7 +170,7 @@ export default function App() {
     window.open(`https://github.com/${owner}/${repo}/actions/runs/${latestWorkflow.id}/artifacts/${artifact}`);
   };
 
-  if (!layout_geometry || !layout_id) {
+  if (!qmk_layout.geometry || !qmk_layout.id) {
     // not on a layout page
     return null;
   }
@@ -180,7 +180,7 @@ export default function App() {
       {configured ? (
         progress == Progress.RUNNING ? (
           <div>
-            <Button disabled>Running...</Button> Device: {layout_geometry} Layout: {layout_id}
+            <Button disabled>Running...</Button> Device: {layout_geometry} Layout: {qmk_layout.id}
           </div>
         ) : (
           <Button onClick={runAction}>Run Github Workflow</Button>
