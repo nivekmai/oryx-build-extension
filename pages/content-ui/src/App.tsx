@@ -177,7 +177,6 @@ export default function App() {
   };
 
   if (!qmk_layout.id) {
-    console.warn(`layout_geometry: ${layout_geometry}, qmk_layout: ${JSON.stringify(qmk_layout)}`);
     // not on a layout page
     return null;
   }
