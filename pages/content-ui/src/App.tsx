@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, useInterval, useVisibilityChange } from '@extension/ui';
-import { useStorage, parseOryxUrl } from '@extension/shared';
+import { useStorage, QmkLayout } from '@extension/shared';
 import { configStorage } from '@extension/storage';
 import { request } from '@octokit/request';
 
@@ -44,9 +44,8 @@ let latestWorkflowRun: Date | null = null;
 
 export default function App() {
   const { owner, repo, workflow_id, token, layout_geometry: store_layout_geometry } = useStorage(configStorage);
-  // TODO (#1): We need to actually look at the page to figure out correct layout_geometry
-  const { layout_geometry: url_layout_geometry, layout_id } = parseOryxUrl();
-  const layout_geometry = store_layout_geometry || url_layout_geometry;
+  const [qmk_layout, setQmkLayout] = useState(QmkLayout.bootstrap());
+  const [layout_geometry, setLayoutGeometry] = useState(store_layout_geometry);
   const [progress, setProgress] = useState(Progress.IDLE);
   const [artifactProgress, setArtifactProgress] = useState(ArtifactProgress.IDLE);
   const [latestWorkflow, setLatestWorkflow] = useState<unknown>(null);
@@ -59,10 +58,6 @@ export default function App() {
   const headers = {
     authorization: `token ${token}`,
   };
-  const inputs = {
-    layout_geometry,
-    layout_id,
-  };
   const ref = 'main';
 
   // threading? IDK
@@ -71,6 +66,15 @@ export default function App() {
   };
 
   const runAction = async () => {
+    if (!store_layout_geometry) {
+      setQmkLayout(qmk_layout.update());
+      setLayoutGeometry(qmk_layout.geometry);
+    }
+
+    const inputs = {
+      layout_geometry: layout_geometry ?? qmk_layout.geometry,
+      layout_id: qmk_layout.id,
+    };
     setProgress(Progress.RUNNING);
     latestWorkflowRun = new Date();
     // Wait 1 second to compensate for any clock skew
@@ -111,7 +115,7 @@ export default function App() {
     } else {
       setProgress(Progress.WAITING);
     }
-    console.log('worflow data: ', workflows.data);
+    console.log('workflow data: ', workflows.data);
     setLatestWorkflow(newLatestWorkflow);
     // No need to get artifact data if workflow hasn't changed or is in progress
     if (
@@ -148,6 +152,8 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {});
+
   useInterval(async () => {
     if (progress !== Progress.RUNNING) {
       await refresh();
@@ -170,17 +176,19 @@ export default function App() {
     window.open(`https://github.com/${owner}/${repo}/actions/runs/${latestWorkflow.id}/artifacts/${artifact}`);
   };
 
-  if (!layout_geometry || !layout_id) {
+  if (!qmk_layout.id) {
     // not on a layout page
     return null;
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded bg-transparent px-2 py-1">
+    <div
+      className="flex items-center justify-between gap-2 rounded bg-transparent px-2 py-1"
+      id="oryx-build-extension-container">
       {configured ? (
         progress == Progress.RUNNING ? (
           <div>
-            <Button disabled>Running...</Button> Device: {layout_geometry} Layout: {layout_id}
+            <Button disabled>Running...</Button> Device: {layout_geometry} Layout: {qmk_layout.id}
           </div>
         ) : (
           <Button onClick={runAction}>Run Github Workflow</Button>
@@ -189,6 +197,23 @@ export default function App() {
         <a id="options_link" href={optionsUrl} target="_blank" rel="noreferrer">
           Extension unconfigured, click to open options to configure
         </a>
+      )}
+
+      {qmk_layout.error && (
+        <div>
+          <p>{qmk_layout.error.message}</p>
+          <p>
+            If ZSA has come out with a new type of keyboard, file an support request&nbsp;
+            <a
+              href="https://github.com/nivekmai/oryx-build-extension/issues"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:bg-sky-200 hover:dark:text-black underline">
+              here
+            </a>
+            .
+          </p>
+        </div>
       )}
       {configured && (
         <div>
@@ -239,13 +264,13 @@ export default function App() {
                               <Button onClick={downloadLatestArtifact}>Download</Button>
                             ) : (
                               <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                                Artifact Missing! Click to open worflow page.
+                                Artifact Missing! Click to open workflow page.
                               </a>
                             );
                           case ArtifactProgress.FAILED:
                             return (
                               <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                                Failed to fetch artifact! Click to open worflow page.
+                                Failed to fetch artifact! Click to open workflow page.
                               </a>
                             );
                         }

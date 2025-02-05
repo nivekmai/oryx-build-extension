@@ -17,6 +17,7 @@
 .DS_Store
 .idea
 **/.turbo
+**/mise.toml
 
 # compiled
 chrome-extension/public/manifest.json
@@ -26,3 +27,4 @@ chrome-extension/public/manifest.json
 dist.pem
 dist.crx
 dist.zip
+

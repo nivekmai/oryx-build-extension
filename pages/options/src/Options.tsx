@@ -57,10 +57,11 @@ const Options = () => {
       />
       <hr />
       <div className="py-1 text-left text-sm text-white">
-        If your layout_geometry is not available from the Oryx URL (e.g. moonlander, voyager, plank_ez, or ergodox_ez),
-        you can use this to override the layout_geometry in the workflow.
+        If your layout_geometry is not fully specified in from the Oryx URL (e.g. <i>plank_ez/glow</i>, or{' '}
+        <i>ergodox_ez/stm32/shine</i>), you can use this to override the layout_geometry in the workflow. This is NOT
+        recommended for users with more than 1 type of ZSA keyboard.
         <br />
-        Leave blank to use the URL.
+        Leave blank to let the extension figure this out each time you kick off a workflow.
       </div>
       <Input
         label="Layout Geometry Override"
