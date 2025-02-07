@@ -1,5 +1,7 @@
 # Oryx with custom QMK Build extension
 
+## Install in [Chrome](https://chromewebstore.google.com/detail/oryx-extension/bocjciklgnhkejkdfilcikhjfbmbcjal) or [Firefox](https://addons.mozilla.org/en-US/android/addon/oryx-extension/)
+
 An extension to easily start runs and access artifacts for your fork of [poulainpi's oryx-with-custom-qmk](https://github.com/poulainpi/oryx-with-custom-qmk).
 
 This extension adds a bar to the top of ZSA's Oryx which lets you start the "Fetch and build layout" workflow after you've updated your keymap. You can then download the firmware when the run completes. Hopefully without ever having to visit github just to kick off/download builds.
