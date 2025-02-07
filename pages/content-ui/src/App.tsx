@@ -230,9 +230,19 @@ export default function App() {
                 case WorkflowStatus.REQUESTED:
                 case WorkflowStatus.WAITING:
                 case WorkflowStatus.QUEUED:
-                  return `Latest workflow (started at ${new Date(latestWorkflow.run_started_at).toLocaleString()}) is queued...`;
+                  return (
+                    <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
+                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) is
+                      queued...
+                    </a>
+                  );
                 case WorkflowStatus.IN_PROGRESS:
-                  return `Latest workflow (started at ${new Date(latestWorkflow.run_started_at).toLocaleString()}) is in progress...`;
+                  return (
+                    <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
+                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) is in
+                      progress...
+                    </a>
+                  );
                 case WorkflowStatus.ACTION_REQUIRED:
                 case WorkflowStatus.CANCELLED:
                 case WorkflowStatus.FAILURE:
@@ -241,19 +251,19 @@ export default function App() {
                 case WorkflowStatus.STALE:
                 case WorkflowStatus.NEUTRAL:
                   return (
-                    <div>
-                      <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                        Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) needs
-                        attention, click to open Github.
-                      </a>
-                    </div>
+                    <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
+                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) needs
+                      attention, click to open Github.
+                    </a>
                   );
                 case WorkflowStatus.SUCCESS:
                 case WorkflowStatus.COMPLETED:
                   return (
                     <div>
-                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) is
-                      complete:&nbsp;
+                      <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
+                        Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()})
+                      </a>{' '}
+                      is complete:&nbsp;
                       {(() => {
                         switch (artifactProgress) {
                           case ArtifactProgress.IDLE:
