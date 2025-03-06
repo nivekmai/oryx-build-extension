@@ -208,7 +208,7 @@ export default function App() {
               href="https://github.com/nivekmai/oryx-build-extension/issues"
               target="_blank"
               rel="noreferrer"
-              className="hover:bg-sky-200 hover:dark:text-black underline">
+              className="underline hover:bg-sky-200 hover:dark:text-black">
               here
             </a>
             .
