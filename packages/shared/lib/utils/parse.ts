@@ -31,7 +31,7 @@ export class QmkLayout {
   constructor(_id: string, _keyboard: Keyboard, _chipset: Chipset, _model: Model, _error?: Error) {
     this.id = _id;
     if (Keyboard[_keyboard]) {
-      let { keyboard, chipset } = QmkLayout._ergodoxish(_keyboard)
+      const { keyboard, chipset } = QmkLayout._ergodoxish(_keyboard)
         ? QmkLayout._ergodoxAndChipset(_keyboard)
         : {
             keyboard: Keyboard[_keyboard] ?? Keyboard.unknown,
@@ -81,13 +81,13 @@ export class QmkLayout {
   }
 
   static _ergodoxAndChipset(kbd: Keyboard): { keyboard: Keyboard; chipset: Chipset } {
-    let chipset: Chipset, keyboard: Keyboard;
+    let chipset: Chipset;
+    const keyboard: Keyboard = Keyboard.ergodox_ez;
     if (Keyboard[kbd] === Keyboard[Keyboard.ergodox_ez_st]) {
       chipset = Chipset.stm32;
     } else {
       chipset = Chipset.m32u4;
     }
-    keyboard = Keyboard.ergodox_ez;
     return { keyboard, chipset };
   }
 
