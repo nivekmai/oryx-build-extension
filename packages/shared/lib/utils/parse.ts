@@ -116,6 +116,7 @@ export class QmkLayout {
     const blacklisted = [Model.original, Model.unspecified, Chipset.unspecified, Keyboard.unknown];
     return [this.keyboard, this.chipset, this.model]
       .filter(v => !blacklisted.includes(v))
+      .filter(v => v)
       .map(v => v.toString())
       .reduce((l, r) => l + '/' + r);
   }
