@@ -81,8 +81,14 @@ export class QmkLayout {
   }
 
   static _ergodoxAndChipset(kbd: Keyboard): { keyboard: Keyboard; chipset: Chipset } {
-    const chipset: Chipset = kbd === Keyboard[Keyboard.ergodox_ez_st] ? Chipset.stm32 : Chipset.m32u4;
-    return { keyboard: kbd, chipset: chipset };
+    let chipset: Chipset;
+    const keyboard: Keyboard = Keyboard.ergodox_ez;
+    if (Keyboard[kbd] === Keyboard[Keyboard.ergodox_ez_st]) {
+      chipset = Chipset.stm32;
+    } else {
+      chipset = Chipset.m32u4;
+    }
+    return { keyboard, chipset };
   }
 
   static _queryDomForModel(): Model {
@@ -110,6 +116,7 @@ export class QmkLayout {
     const blacklisted = [Model.original, Model.unspecified, Chipset.unspecified, Keyboard.unknown];
     return [this.keyboard, this.chipset, this.model]
       .filter(v => !blacklisted.includes(v))
+      .filter(v => v)
       .map(v => v.toString())
       .reduce((l, r) => l + '/' + r);
   }
