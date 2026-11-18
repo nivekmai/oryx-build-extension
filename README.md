@@ -4,7 +4,7 @@
 
 An extension to easily start runs and access artifacts for your fork of [poulainpi's oryx-with-custom-qmk](https://github.com/poulainpi/oryx-with-custom-qmk).
 
-This extension adds a bar to the top of ZSA's Oryx which lets you start the "Fetch and build layout" workflow after you've updated your keymap. You can then download the firmware when the run completes. Hopefully without ever having to visit github just to kick off/download builds.
+This extension adds a bar to the top of ZSA's Oryx which lets you start the "Fetch and build layout" workflow after you've updated your keymap. When the run succeeds, you can download its artifact. In Chrome or Edge, layouts with a `.bin` artifact also get a **Flash custom build** button in the extension bar. The extension reuses the DFU suffix from Oryx's firmware for that layout, then sends the workflow build through Oryx's own keyboard selection and flashing flow. If Oryx does not provide a compatible DFU suffix, the flash flow reports an error and the normal **Download** option remains available.
 
 ![configure zsa io_moonlander_layouts_Eon7Y_latest_0](https://github.com/user-attachments/assets/b0091eea-4a53-4d58-b63b-be86825936be)
 
@@ -17,6 +17,8 @@ To get the Github Action URL</b> go to your repository page &gt; <b>Actions</b> 
 To get the <b>Personal Access Token</b> you will need to follow the <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token">Github Documentation</a>. Make sure the token has access to read and write the <b>Actions</b> scope.
 
 No need to save the page, after these values are entered here, you will see a button on Oryx to <b>Run Github Workflow</b>, which will trigger the workflow to run. These values are stored only in the browser, they are not sync'd to any cloud storage.
+
+For flashing, use Chrome or Edge and follow Oryx's prompts. The **Download** button remains available as a manual flashing fallback.
 
 > [!NOTE]
 > If the extension does not correctly figure out your `layout_geometry` there is an additional option to be able to override the `layout_geometry` that is used int the Github Workflow.
