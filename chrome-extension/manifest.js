@@ -23,7 +23,11 @@ const manifest = {
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
   permissions: ['storage'],
-  host_permissions: ['https://configure.zsa.io/*/layouts/*'],
+  host_permissions: [
+    'https://configure.zsa.io/*/layouts/*',
+    'https://api.github.com/*',
+    'https://*.blob.core.windows.net/*',
+  ],
   options_page: 'options/index.html',
   background: {
     service_worker: 'background.iife.js',
@@ -42,7 +46,15 @@ const manifest = {
   ],
   web_accessible_resources: [
     {
-      resources: ['*.js', '*.css', '*.svg', 'icon-128.png', 'icon-34.png', 'options/index.html'],
+      resources: [
+        '*.js',
+        '*.css',
+        '*.svg',
+        'content-ui/oryx-flash-bridge.js',
+        'icon-128.png',
+        'icon-34.png',
+        'options/index.html',
+      ],
       matches: ['*://*/*'],
     },
   ],

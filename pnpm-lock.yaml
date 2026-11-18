@@ -114,6 +114,9 @@ importers:
       '@extension/storage':
         specifier: workspace:*
         version: link:../packages/storage
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.2
       webextension-polyfill:
         specifier: ^0.12.0
         version: 0.12.0

@@ -10,7 +10,7 @@ export const cn = (...inputs: ClassValue[]) => {
 type Callback = () => void;
 
 export const useInterval = (callback: Callback, delay: number) => {
-  const savedCallback = useRef();
+  const savedCallback = useRef<Callback>(callback);
 
   useEffect(() => {
     savedCallback.current = callback;
@@ -24,6 +24,7 @@ export const useInterval = (callback: Callback, delay: number) => {
       const id = setInterval(tick, delay);
       return () => clearInterval(id);
     }
+    return undefined;
   }, [delay]);
 };
 

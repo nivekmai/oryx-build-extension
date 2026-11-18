@@ -3,6 +3,7 @@ import { Button, useInterval, useVisibilityChange } from '@extension/ui';
 import { useStorage, QmkLayout } from '@extension/shared';
 import { configStorage } from '@extension/storage';
 import { request } from '@octokit/request';
+import { downloadFirmwareFromArtifact, type FirmwareArtifact } from './github-artifact';
 
 enum Progress {
   IDLE,
@@ -18,6 +19,18 @@ enum ArtifactProgress {
   FETCHING,
   FETCHED,
   FAILED,
+}
+
+type WorkflowRun = {
+  id: number;
+  status: string;
+  run_started_at: string | null;
+  created_at: string;
+  html_url: string;
+};
+
+function workflowDate(run: WorkflowRun): string {
+  return new Date(run.run_started_at ?? run.created_at).toLocaleString();
 }
 
 // from: https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository--parameters
@@ -40,6 +53,15 @@ enum WorkflowStatus {
 
 const WAIT_INTERVAL = 10_000;
 
+function toBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  }
+  return btoa(binary);
+}
+
 let latestWorkflowRun: Date | null = null;
 
 export default function App() {
@@ -48,8 +70,10 @@ export default function App() {
   const [layout_geometry, setLayoutGeometry] = useState(store_layout_geometry);
   const [progress, setProgress] = useState(Progress.IDLE);
   const [artifactProgress, setArtifactProgress] = useState(ArtifactProgress.IDLE);
-  const [latestWorkflow, setLatestWorkflow] = useState<unknown>(null);
-  const [artifact, setArtifact] = useState(0);
+  const [latestWorkflow, setLatestWorkflow] = useState<WorkflowRun | null>(null);
+  const [artifact, setArtifact] = useState<FirmwareArtifact | null>(null);
+  const [firmware, setFirmware] = useState<ArrayBuffer | null>(null);
+  const [customFlashStatus, setCustomFlashStatus] = useState('');
   const [error, setError] = useState<unknown>(null);
   const optionsUrl = chrome.runtime.getURL('options/index.html');
   const configured = owner && repo && workflow_id && token;
@@ -59,6 +83,9 @@ export default function App() {
     authorization: `token ${token}`,
   };
   const ref = 'main';
+  const geometry = layout_geometry ?? qmk_layout.geometry;
+  const webUsbAvailable = 'usb' in navigator;
+  const expectedArtifactName = `${geometry.replaceAll('/', '_')}_${qmk_layout.id}`;
 
   // threading? IDK
   const getLatestRunStart = async () => {
@@ -70,6 +97,11 @@ export default function App() {
       setQmkLayout(qmk_layout.update());
       setLayoutGeometry(qmk_layout.geometry);
     }
+
+    setArtifact(null);
+    setFirmware(null);
+    setCustomFlashStatus('');
+    setArtifactProgress(ArtifactProgress.IDLE);
 
     const inputs = {
       layout_geometry: layout_geometry ?? qmk_layout.geometry,
@@ -106,7 +138,11 @@ export default function App() {
       repo,
       headers,
     });
-    const newLatestWorkflow = workflows.data?.workflow_runs?.[0];
+    const newLatestWorkflow = workflows.data?.workflow_runs?.[0] as WorkflowRun | undefined;
+    if (!newLatestWorkflow) {
+      setProgress(Progress.FAILED);
+      return;
+    }
     const latestWorkflowStart = newLatestWorkflow?.run_started_at ? new Date(newLatestWorkflow.run_started_at) : null;
     const latestRunStart = await getLatestRunStart();
     // Github doesn't return the new workflow for a while, so wait until we get one that started after the button was clicked.
@@ -135,10 +171,20 @@ export default function App() {
       repo,
       run_id,
     });
-    const artifact_id = artifacts?.data?.artifacts?.[0]?.id;
-    if (artifact_id) {
-      setArtifact(artifact_id);
+    const matchingArtifact = (artifacts?.data?.artifacts ?? []).find(
+      (item: FirmwareArtifact) => item.name === expectedArtifactName && !item.expired,
+    ) as FirmwareArtifact | undefined;
+    if (matchingArtifact) {
+      setArtifact(matchingArtifact);
       setArtifactProgress(ArtifactProgress.FETCHED);
+      if (webUsbAvailable) {
+        try {
+          const downloaded = await downloadFirmwareFromArtifact(owner, repo, matchingArtifact.id, token, geometry);
+          setFirmware(downloaded.firmware);
+        } catch (downloadError) {
+          setError(downloadError);
+        }
+      }
     } else {
       setArtifactProgress(ArtifactProgress.FAILED);
     }
@@ -150,6 +196,20 @@ export default function App() {
       refresh();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const onCustomFirmwareUsed = () => setCustomFlashStatus('Oryx is using the custom build');
+    const onCustomFirmwareError = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail;
+      setCustomFlashStatus(detail || 'Oryx could not use the custom firmware');
+    };
+    document.addEventListener('oryx-custom-firmware-used', onCustomFirmwareUsed);
+    document.addEventListener('oryx-custom-firmware-error', onCustomFirmwareError);
+    return () => {
+      document.removeEventListener('oryx-custom-firmware-used', onCustomFirmwareUsed);
+      document.removeEventListener('oryx-custom-firmware-error', onCustomFirmwareError);
+    };
   }, []);
 
   useEffect(() => {});
@@ -173,7 +233,34 @@ export default function App() {
     // });
 
     // but this works I guess
-    window.open(`https://github.com/${owner}/${repo}/actions/runs/${latestWorkflow.id}/artifacts/${artifact}`);
+    if (artifact && latestWorkflow) {
+      window.open(`https://github.com/${owner}/${repo}/actions/runs/${latestWorkflow.id}/artifacts/${artifact.id}`);
+    }
+  };
+
+  const saveCustomBuildToKeyboard = () => {
+    if (!firmware) return;
+    if (document.documentElement.dataset.oryxCustomFirmwareBridge !== 'ready') {
+      setError(new Error('Oryx’s flashing flow is not ready yet. Reload the Oryx page and try again.'));
+      return;
+    }
+
+    const saveButton = Array.from(document.querySelectorAll('button')).find(
+      button => button.textContent?.trim().toLowerCase() === 'save to my keyboard',
+    );
+    if (!saveButton) {
+      setError(new Error('Oryx’s Save to my keyboard button was not found. Reload the layout and try again.'));
+      return;
+    }
+
+    try {
+      setCustomFlashStatus('Opening Oryx with the custom build…');
+      document.dispatchEvent(new CustomEvent('oryx-custom-firmware-arm', { detail: toBase64(firmware) }));
+      saveButton.click();
+    } catch (flashError) {
+      setCustomFlashStatus('Could not start Oryx’s flash flow');
+      setError(flashError);
+    }
   };
 
   if (!qmk_layout.id) {
@@ -183,7 +270,7 @@ export default function App() {
 
   return (
     <div
-      className="flex items-center justify-between gap-2 rounded bg-transparent px-2 py-1"
+      className="flex flex-wrap items-center justify-between gap-2 rounded bg-transparent px-2 py-1"
       id="oryx-build-extension-container">
       {configured ? (
         progress == Progress.RUNNING ? (
@@ -218,10 +305,13 @@ export default function App() {
       {configured && (
         <div>
           {progress == Progress.FAILED && 'Failed to run workflow'}
-          {error?.status == 403 &&
+          {typeof error === 'object' &&
+            error !== null &&
+            'status' in error &&
+            error.status == 403 &&
             " Permission error! Make sure you've allowed write for the 'Actions' scope for your access token. "}
-          {(progress == Progress.WAITING || progress == Progress.WAITING_LOCAL) &&
-            'Waiting for latest workflow to start...'}
+          {error instanceof Error && <span role="alert">{error.message}</span>}
+          {progress == Progress.WAITING && 'Waiting for latest workflow to start...'}
           {progress == Progress.FETCHING && 'Getting latest workflow runs...'}
           {progress == Progress.FETCHED &&
             (() => {
@@ -232,15 +322,13 @@ export default function App() {
                 case WorkflowStatus.QUEUED:
                   return (
                     <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) is
-                      queued...
+                      Latest workflow (started at {workflowDate(latestWorkflow)}) is queued...
                     </a>
                   );
                 case WorkflowStatus.IN_PROGRESS:
                   return (
                     <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) is in
-                      progress...
+                      Latest workflow (started at {workflowDate(latestWorkflow)}) is in progress...
                     </a>
                   );
                 case WorkflowStatus.ACTION_REQUIRED:
@@ -252,16 +340,15 @@ export default function App() {
                 case WorkflowStatus.NEUTRAL:
                   return (
                     <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                      Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()}) needs
-                      attention, click to open Github.
+                      Latest workflow (started at {workflowDate(latestWorkflow)}) needs attention, click to open Github.
                     </a>
                   );
                 case WorkflowStatus.SUCCESS:
                 case WorkflowStatus.COMPLETED:
                   return (
-                    <div>
+                    <div className="flex flex-wrap items-center gap-2">
                       <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
-                        Latest workflow (started at {new Date(latestWorkflow.run_started_at).toLocaleString()})
+                        Latest workflow (started at {workflowDate(latestWorkflow)})
                       </a>{' '}
                       is complete:&nbsp;
                       {(() => {
@@ -271,7 +358,21 @@ export default function App() {
                             return 'Getting artifact for latest workflow...';
                           case ArtifactProgress.FETCHED:
                             return artifact ? (
-                              <Button onClick={downloadLatestArtifact}>Download</Button>
+                              <>
+                                <Button onClick={downloadLatestArtifact}>Download</Button>
+                                {customFlashStatus && (
+                                  <span role="status" className="text-sm">
+                                    {customFlashStatus}
+                                  </span>
+                                )}
+                                {firmware && webUsbAvailable && (
+                                  <Button
+                                    onClick={saveCustomBuildToKeyboard}
+                                    title="Flash this custom firmware build to your keyboard using Oryx">
+                                    Flash custom build
+                                  </Button>
+                                )}
+                              </>
                             ) : (
                               <a href={latestWorkflow.html_url} target="_blank" rel="noreferrer">
                                 Artifact Missing! Click to open workflow page.

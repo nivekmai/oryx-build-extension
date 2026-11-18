@@ -2,9 +2,14 @@ import { createRoot } from 'react-dom/client';
 import App from '@src/App';
 import tailwindcssOutput from '../dist/tailwind-output.css?inline';
 
+const bridgeScript = document.createElement('script');
+bridgeScript.src = chrome.runtime.getURL('content-ui/oryx-flash-bridge.js');
+bridgeScript.async = false;
+bridgeScript.onload = () => bridgeScript.remove();
+(document.head || document.documentElement).appendChild(bridgeScript);
+
 const root = document.createElement('div');
 root.id = 'chrome-extension-boilerplate-react-vite-content-view-root';
-
 document.body.prepend(root);
 
 const rootIntoShadow = document.createElement('div');
